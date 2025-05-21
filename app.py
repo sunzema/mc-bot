@@ -16,16 +16,23 @@ def sil():
     user_id = request.form.get("user_id")
     text = request.form.get("text", "").strip()
     amount = int(text) if text.isdigit() else 1
+    
+    print(f"Channel ID: {channel_id}, User ID: {user_id}, Amount: {amount}")
 
     history = requests.get(
         "https://slack.com/api/conversations.history",
         headers=headers,
-        params={"channel": channel_id, "limit": 100}
+        params={"channel": channel_id, "limit": 10000}
     ).json()
 
     print(f"Channel: {channel_id}, User: {user_id}")
     print(f"Messages fetched: {len(history.get('messages', []))}")
-    
+     for msg in history.get("messages", []):
+        print(f"Message ts: {msg.get('ts')}, user: {msg.get('user')}, subtype: {msg.get('subtype')}")
+
+    # Silme işlemi devam eder...
+
+    return jsonify({"response_type": "ephemeral", "text": "Silme işlemi tamamlandı."})
     silinenler = 0
     for msg in history.get("messages", []):
         print(f"Message user: {msg.get('user')}, subtype: {msg.get('subtype')}")
