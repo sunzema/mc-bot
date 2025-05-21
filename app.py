@@ -27,17 +27,11 @@ def sil():
 
     print(f"Channel: {channel_id}, User: {user_id}")
     print(f"Messages fetched: {len(history.get('messages', []))}")
-      print(f"Fetched messages count: {len(history.get('messages', []))}")
+    print(f"Fetched messages count: {len(history.get('messages', []))}")
 
-    for msg in history.get("messages", []):
-        print(f"Message ts: {msg.get('ts')}, user: {msg.get('user')}, subtype: {msg.get('subtype')}")
-
-    # Silme işlemi devam eder...
-
-    return jsonify({"response_type": "ephemeral", "text": "Silme işlemi tamamlandı."})
     silinenler = 0
     for msg in history.get("messages", []):
-        print(f"Message user: {msg.get('user')}, subtype: {msg.get('subtype')}")
+        print(f"Message ts: {msg.get('ts')}, user: {msg.get('user')}, subtype: {msg.get('subtype')}")
         if msg.get("user") == user_id and "subtype" not in msg:
             delete_resp = requests.post(
                 "https://slack.com/api/chat.delete",
@@ -60,7 +54,7 @@ def sil():
             "response_type": "ephemeral",
             "text": f"🤖 MC Bot: <@{user_id}> - Son {silinenler} mesajın silindi."
         })
+
 if __name__ == "__main__":
-   import os
-port = int(os.environ.get("PORT", 5000))
-app.run(host="0.0.0.0", port=port, debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)
