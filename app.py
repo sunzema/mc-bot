@@ -27,7 +27,9 @@ def sil():
 
     print(f"Channel: {channel_id}, User: {user_id}")
     print(f"Messages fetched: {len(history.get('messages', []))}")
-     for msg in history.get("messages", []):
+      print(f"Fetched messages count: {len(history.get('messages', []))}")
+
+    for msg in history.get("messages", []):
         print(f"Message ts: {msg.get('ts')}, user: {msg.get('user')}, subtype: {msg.get('subtype')}")
 
     # Silme işlemi devam eder...
