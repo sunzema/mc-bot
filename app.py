@@ -23,29 +23,34 @@ def sil():
         params={"channel": channel_id, "limit": 100}
     ).json()
 
-    if not history.get("messages"):
-        return jsonify({
-            "response_type": "ephemeral",
-            "text": "🤖 MC Bot: Bu kanalda silinecek mesaj bulunamadı."
-        })
-
+    print(f"Channel: {channel_id}, User: {user_id}")
+    print(f"Messages fetched: {len(history.get('messages', []))}")
+    
     silinenler = 0
     for msg in history.get("messages", []):
+        print(f"Message user: {msg.get('user')}, subtype: {msg.get('subtype')}")
         if msg.get("user") == user_id and "subtype" not in msg:
             delete_resp = requests.post(
                 "https://slack.com/api/chat.delete",
                 headers=headers,
                 json={"channel": channel_id, "ts": msg["ts"]}
             )
+            print(f"Deleting message ts={msg['ts']} result: {delete_resp.json()}")
             if delete_resp.json().get("ok"):
                 silinenler += 1
             if silinenler >= amount:
                 break
 
-    return jsonify({
-        "response_type": "ephemeral",
-        "text": f"🤖 MC Bot: <@{user_id}> - Son {silinenler} mesajın silindi."
-    })
+    if silinenler == 0:
+        return jsonify({
+            "response_type": "ephemeral",
+            "text": f"🤖 MC Bot: Bu kanalda silinecek mesaj bulunamadı."
+        })
+    else:
+        return jsonify({
+            "response_type": "ephemeral",
+            "text": f"🤖 MC Bot: <@{user_id}> - Son {silinenler} mesajın silindi."
+        })
 if __name__ == "__main__":
    import os
 port = int(os.environ.get("PORT", 5000))
