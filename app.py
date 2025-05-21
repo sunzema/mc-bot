@@ -17,40 +17,30 @@ def sil():
     text = request.form.get("text", "").strip()
     amount = int(text) if text.isdigit() else 1
 
-    # Mesaj geçmişini çek
     history = requests.get(
-    "https://slack.com/api/conversations.history",
-    headers=headers,
-    params={"channel": channel_id, "limit": 100}
-).json()
+        "https://slack.com/api/conversations.history",
+        headers=headers,
+        params={"channel": channel_id, "limit": 100}
+    ).json()
 
-print("Conversations.history response:", history)  # Önce mesajları kontrol et
+    if not history.get("messages"):
+        return jsonify({
+            "response_type": "ephemeral",
+            "text": "🤖 MC Bot: Bu kanalda silinecek mesaj bulunamadı."
+        })
 
-if not history.get("messages"):
-    return jsonify({
-        "response_type": "ephemeral",
-        "text": "🤖 MC Bot: Bu kanalda silinecek mesaj bulunamadı."
-    })
-
-silinenler = 0
-for msg in history.get("messages", []):
-    if msg.get("user") == user_id and "subtype" not in msg:
-        delete_resp = requests.post(
-            "https://slack.com/api/chat.delete",
-            headers=headers,
-            json={"channel": channel_id, "ts": msg["ts"]}
-        )
-        delete_json = delete_resp.json()
-        print("chat.delete response:", delete_json)  # Silme isteğinin sonucunu göster
-
-        if delete_json.get("ok"):
-            silinenler += 1
-        else:
-            print(f"Mesaj silme başarısız: {delete_json.get('error')}")
-
-        if silinenler >= amount:
-            break
-
+    silinenler = 0
+    for msg in history.get("messages", []):
+        if msg.get("user") == user_id and "subtype" not in msg:
+            delete_resp = requests.post(
+                "https://slack.com/api/chat.delete",
+                headers=headers,
+                json={"channel": channel_id, "ts": msg["ts"]}
+            )
+            if delete_resp.json().get("ok"):
+                silinenler += 1
+            if silinenler >= amount:
+                break
 
     return jsonify({
         "response_type": "ephemeral",
