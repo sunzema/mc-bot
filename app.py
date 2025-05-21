@@ -14,7 +14,8 @@ headers = {
 def sil():
     channel_id = request.form.get("channel_id")
     user_id = request.form.get("user_id")
-    amount = int(request.form.get("text", "1"))
+    text = request.form.get("text", "").strip()
+    amount = int(text) if text.isdigit() else 1
 
     # Mesaj geçmişini çek
     history = requests.get(
@@ -40,7 +41,6 @@ def sil():
         "response_type": "ephemeral",
         "text": f"🤖 MC Bot: <@{user_id}> - Son {silinenler} mesajın silindi."
     })
-
 if __name__ == "__main__":
    import os
 port = int(os.environ.get("PORT", 5000))
